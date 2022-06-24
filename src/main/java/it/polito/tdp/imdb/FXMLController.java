@@ -5,8 +5,10 @@
 package it.polito.tdp.imdb;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.imdb.model.Actor;
 import it.polito.tdp.imdb.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -35,10 +37,10 @@ public class FXMLController {
     private Button btnSimulazione; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxGenere"
-    private ComboBox<?> boxGenere; // Value injected by FXMLLoader
+    private ComboBox<String> boxGenere; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxAttore"
-    private ComboBox<?> boxAttore; // Value injected by FXMLLoader
+    private ComboBox<Actor> boxAttore; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtGiorni"
     private TextField txtGiorni; // Value injected by FXMLLoader
@@ -48,12 +50,34 @@ public class FXMLController {
 
     @FXML
     void doAttoriSimili(ActionEvent event) {
-
+    	txtResult.clear();
+    	Actor attore=this.boxAttore.getValue();
+    	if(attore==null) {
+    		txtResult.appendText("SELEZIONARE UN ATTORE DALL'APPOSITA TENDINA");
+    		return;
+    	}
+    	List<Actor> attori=this.model.attoriSimili(attore);
+    	txtResult.appendText("Attori simili a :"+attore.toString()+"\n");
+    	for(Actor a : attori) {
+    		if(a.getId()!=attore.getId())
+    		txtResult.appendText(a.toString()+"\n");
+    	}
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
-
+    	txtResult.clear();
+    	String genere= this.boxGenere.getValue();
+    	if(genere.length()==0) {
+    		txtResult.setText("SELEZIONARE UN GENERE DI FILM DALL'APPOSITA TENDINA");
+    		return;
+    	}
+    	this.model.creaGrafo(genere);
+    	txtResult.appendText("GRAFO CREATO \n");
+    	txtResult.appendText("Numero vertici : "+this.model.nVertici()+"\n");
+    	txtResult.appendText("Numero Archi : "+this.model.nArchi());
+    	this.boxAttore.getItems().addAll(this.model.getVertici());
+    	
     }
 
     @FXML
@@ -75,5 +99,6 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	this.boxGenere.getItems().addAll(this.model.getGeneri());
     }
 }
